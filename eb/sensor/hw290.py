@@ -101,6 +101,9 @@ class HW290:
         t.daemon = False
         t.start()
 
+    def stop(self) -> None:
+        self._status = 0
+
     def get_last_data(self) -> dict:
         if self._last_data == {}:
             return {
