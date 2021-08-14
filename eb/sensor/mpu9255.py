@@ -33,13 +33,11 @@ class MPU9255:
 
     def __init__(self,
                  base_addr: int = 0x68,
-                 mag_addr : int = 0x0C,
                  data_rate: int = 10) -> None:
         self.LOG_INFO = "mpu9255.py"
 
         self._bus       = None
         self._addr      = base_addr
-        self._mag_addr  = mag_addr
         self._data_rate = data_rate
         self._last_data = {}
         self._status    = 0
@@ -123,23 +121,11 @@ class MPU9255:
                     "z": MPU9255._parse_val(gyro_data["raw"]["z"]) / 16.4
                 }
 
-                # Mag data
-                block_data = cls._read_block_data(0x03, 8, addr_ovr=cls._mag_addr)
-
-                mag_data = {
-                    "x" : (block_data[0] << 8) | block_data[1],
-                    "y" : (block_data[2] << 8) | block_data[3],
-                    "z" : (block_data[4] << 8) | block_data[5]
-                }
-
                 cls._last_data = {
                     "accel": accel_data,
                     "gyro" : gyro_data,
-                    "mag"  : mag_data,
                     "timestamp": Time.get_current_timestamp("ms")
                 }
-
-                cls._write_byte(0x0A, 0x01, addr_ovr=cls._mag_addr)
             except TypeError: pass
 
             sleep(1 / cls._data_rate)
@@ -159,8 +145,6 @@ class MPU9255:
         # Gyro
         # 0, 8, 16 and 24 (int) for 131, 65.5, 32.8 and 16.4 sensitivity respectively
         self._write_byte(MPU9255.REGISTER.GYRO_CONFIG, 0x18) # set to 16.4
-
-        self._write_byte(0x0A, 0x01, addr_ovr=self._mag_addr)
 
         self._status = 1
 
@@ -202,11 +186,6 @@ class MPU9255:
                         "y" : None,
                         "z" : None
                     }
-                },
-                "mag" : {
-                    "x" : None,
-                    "y" : None,
-                    "z" : None
                 },
                 "timestamp" : Time.get_current_timestamp("ms")
             }
