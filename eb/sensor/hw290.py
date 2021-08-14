@@ -101,34 +101,34 @@ class HW290:
         t.daemon = False
         t.start()
 
-def get_last_data(self) -> dict:
-    if self._last_data == {}:
-        return {
-            "accel" : {
-                "raw" : {
-                    "x" : None,
-                    "y" : None,
-                    "z" : None
+    def get_last_data(self) -> dict:
+        if self._last_data == {}:
+            return {
+                "accel" : {
+                    "raw" : {
+                        "x" : None,
+                        "y" : None,
+                        "z" : None
+                    },
+                    "scaled" : {
+                        "x" : None,
+                        "y" : None,
+                        "z" : None
+                    }
                 },
-                "scaled" : {
-                    "x" : None,
-                    "y" : None,
-                    "z" : None
-                }
-            },
-            "gyro"  : {
-                "raw" : {
-                    "x" : None,
-                    "y" : None,
-                    "z" : None
+                "gyro"  : {
+                    "raw" : {
+                        "x" : None,
+                        "y" : None,
+                        "z" : None
+                    },
+                    "scaled" : {
+                        "x" : None,
+                        "y" : None,
+                        "z" : None
+                    }
                 },
-                "scaled" : {
-                    "x" : None,
-                    "y" : None,
-                    "z" : None
-                }
-            },
-            "timestamp" : Time.get_current_timestamp("ms")
-        }
+                "timestamp" : Time.get_current_timestamp("ms")
+            }
 
-    return self._last_data
+        return self._last_data
