@@ -45,17 +45,17 @@ class HW290:
                 
                 accel_data = {
                     "raw": {
-                        "x" : HW290._parse_val((block_data[0] << 8) | block_data[1]),
-                        "y" : HW290._parse_val((block_data[2] << 8) | block_data[3]),
-                        "z" : HW290._parse_val((block_data[4] << 8) | block_data[5])
+                        "x" : HW290._parse_gyro_acc_val((block_data[0] << 8) | block_data[1]),
+                        "y" : HW290._parse_gyro_acc_val((block_data[2] << 8) | block_data[3]),
+                        "z" : HW290._parse_gyro_acc_val((block_data[4] << 8) | block_data[5])
                     },
                     "scaled": {}
                 }
 
                 accel_data["scaled"] = {
-                    "x" : HW290._parse_val(accel_data["raw"]["x"]) / 2048.,
-                    "y" : HW290._parse_val(accel_data["raw"]["y"]) / 2048.,
-                    "z" : HW290._parse_val(accel_data["raw"]["z"]) / 2048.
+                    "x" : HW290._parse_gyro_acc_val(accel_data["raw"]["x"]) / 2048.,
+                    "y" : HW290._parse_gyro_acc_val(accel_data["raw"]["y"]) / 2048.,
+                    "z" : HW290._parse_gyro_acc_val(accel_data["raw"]["z"]) / 2048.
                 }
 
                 # Gyro data
@@ -96,6 +96,8 @@ class HW290:
         # Gyro Sensitivity
         # 0, 8, 16 and 24 (int) for 131, 65.5, 32.8 and 16.4 sensitivity respectively
         self._gyro_acc.write_byte(HW290.REGISTER.ACCEL_GYRO.GYRO_SENSITIVITY, 0x18)
+
+        self._status = 1
 
         t = threading.Thread(target=self._thread_handler, args=(self,))
         t.daemon = False
