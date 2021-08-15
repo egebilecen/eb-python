@@ -65,7 +65,8 @@ class GY_NEO6MV2:
                 gps_data = cls._serial.read_until(GY_NEO6MV2.LINE_END).decode("ascii")
                 data_split = gps_data.split(",")
 
-                if "$GPGGA" != data_split[0]: continue
+                if  "$GPGGA" != data_split[0] \
+                and "$GNGGA" != data_split[0]: continue
 
                 cls._last_data = {
                     "timestamp" : Time.get_current_timestamp("ms"),
