@@ -161,7 +161,6 @@ class Mission:
                     desired_alt = current_mission.get("alt")
                     threshold   = 0.15
 
-                    # /!\ Toggle below line if odd behaviours observed on drone.
                     cls._execute_mission(current_mission,
                                          cls._mission_retries,
                                          cls._mission_retry_timeout)
