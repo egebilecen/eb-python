@@ -21,7 +21,7 @@ from time import sleep
 
 from eb.camera     import Camera
 from eb.logger     import Logger
-from eb_drone.math import Math as Drone_Math
+from eb.drone.math import Math as Drone_Math
 import config
 
 camera = Camera(config.Camera.DEVICE_INDEX, file_name  = "flight_vid")

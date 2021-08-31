@@ -16,12 +16,12 @@
     coordinates which is the way that used in this script.
 """
 from time import sleep
-from eb.logger  import Logger
-from eb.compass import Compass
-from eb.method  import Method
-from eb.time    import Time
-from eb_drone.math    import Math as Drone_Math
-from eb_img_proc.util import Util
+from eb.logger     import Logger
+from eb.compass    import Compass
+from eb.method     import Method
+from eb.time       import Time
+from eb.drone.math import Math as Drone_Math
+from eb.image_processing.util import Util
 import config
 import func
 
