@@ -109,7 +109,7 @@ Consists the links of the libraries that is needed for my classes to work. Make 
 * pymavlink's mavutil constants and methods reference. And some other references.
 
 <br>
-<b>reference.py</b>
+<b>telemetry.py</b>
 
 * Consists methods to get drone's various informations. Such as GPS position, last heartbeat, arm status, flight mode etc...
 
