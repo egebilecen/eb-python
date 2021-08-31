@@ -8,21 +8,23 @@ import threading
 
 from eb.logger import Logger
 from eb.image_processing.image import Image
-import config
 
 class Camera:
     def __init__(self,
-                 device    : int   = 0,
-                 resolution: tuple = (640, 480),
-                 fps       : int   = 30,
-                 file_name : str   = "") -> None:
-        self._last_frame = b""
-        self._status     = 0
-        self._device     = device
-        self._resolution = resolution
-        self._fps        = fps
-        self._file_name  = file_name
-        self._output_dir = config.Camera.OUTPUT_DIR
+                 device      : int   = 0,
+                 resolution  : tuple = (640, 480),
+                 fps         : int   = 30,
+                 file_name   : str   = "",
+                 output_dir  : str   = "./video_output/",
+                 frame_encode: str   = ".jpg") -> None:
+        self._last_frame   = b""
+        self._status       = 0
+        self._device       = device
+        self._resolution   = resolution
+        self._fps          = fps
+        self._file_name    = file_name
+        self._output_dir   = output_dir
+        self._frame_encode = frame_encode
 
         self._camera     = None
         self._writer     = None
@@ -77,6 +79,6 @@ class Camera:
     def get_last_frame(self,
                        raw_frame: bool = False):
         if not raw_frame:
-            return Image.Encode.FromRawImage(self._last_frame, config.Camera.FRAME_ENCODE)
+            return Image.Encode.FromRawImage(self._last_frame, self._frame_encode)
 
         return self._last_frame
