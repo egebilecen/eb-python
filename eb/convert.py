@@ -5,11 +5,6 @@
 from math import pi
 
 class Convert:
-    class Math:
-        @staticmethod
-        def radians_to_degrees(rad: float) -> float:
-            return rad * 180 / pi
-
     class Value:
         @staticmethod
         def none_to_int(val: any,
