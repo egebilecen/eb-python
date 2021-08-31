@@ -79,7 +79,7 @@ class Util:
             return ret_point_list
 
         @staticmethod
-        def get_closer_point_to_center(point_list: List[Tuple[int, int]]) -> Tuple[int, int]:
+        def get_closest_point_to_center(point_list: List[Tuple[int, int]]) -> Tuple[int, int]:
             ret_point = None
             dist = 0
 
