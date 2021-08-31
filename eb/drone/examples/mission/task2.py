@@ -7,6 +7,7 @@
     |   _________________________|___
     |  /  Ege Bilecen - 09.09.2020  /.
     \_/____________________________/.
+    
     This script was written for TÜBİTAK International Unmanned Aerial Vehicles Competition 2020.
     I am just sharing this script to show how action methods are used to guide the drone. You can
     either choose to setting "skip" in control["position"]["hold"] to True and guide the drone
