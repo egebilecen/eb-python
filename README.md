@@ -1,4 +1,4 @@
-This repo contains classes/wrappers to work with <b>Drones</b> that uses MAVLink, <b>image processing</b>,  <b>servo and ESC motor</b> control on Raspberry PI and <b>some sensors</b>.
+This repo contains classes/wrappers to work with <b>Drones</b> that uses MAVLink, <b>image processing</b>,  <b>servo and ESC motor</b> control on Raspberry PI and getting data from <b>some sensors</b>.
 (More detailed information about classes and methods can be found in <b>eb</b> folder and it's subfolders. Only external dependencies are written across all documentation.) 
 
 # libs.txt
