@@ -6,10 +6,10 @@ from typing import List, Tuple
 
 from eb.math    import Math
 from eb.compass import Compass
-import config
 
 class Util:
-    CAMERA_CENTER_POINT = (int(config.Camera.RESOLUTION[0] / 2), int(config.Camera.RESOLUTION[1] / 2))
+    CAMERA_RESOLUTION   = (640, 480)
+    CAMERA_CENTER_POINT = (int(CAMERA_RESOLUTION[0] / 2), int(CAMERA_RESOLUTION[1] / 2))
 
     class Point:
         @staticmethod
