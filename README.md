@@ -101,7 +101,7 @@ Consists the links of the libraries that is needed for my classes to work. Make 
 <br>
 <b>mission.py</b>
 
-* Companion computer controlled mission system. Allows user to execute python scripts while being allowed to control drone position.
+* Companion computer controlled mission system. Allows user to execute python scripts while being allowed to control drone position. Drone will be held in it's present GPS coordinates while executing mission script.
 
 <br>
 <b>reference.py</b>
