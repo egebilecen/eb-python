@@ -143,3 +143,16 @@ Consists the links of the libraries that is needed for my classes to work. Make 
 <b>util.py</b>
 
 * Consists utility methods to make working on image processing easier. Such as filtering neighbor points, extracting information from point list (such as compass bearing between camera center point and the target point), getting closest point to the center, etc...
+
+# Brief of Raspberry Classes
+(Those classes are located under "<b>eb/raspberry/</b>" folder.)
+<b>motor/esc.py</b>
+
+* Class for control a brushless motor via ESC.
+
+<br>
+<b>motor/servo.py</b>
+
+* Class for control a servo motor.
+
+<br>
