@@ -1,5 +1,14 @@
+Needed for camera.py and "eb.image_processing" classes.
 https://pypi.org/project/opencv-contrib-python/ (cv2)
+
+Needed for i2c.py and "eb.sensor" classes.
 https://pypi.org/project/smbus2/ (smbus2)
+
+Needed for "eb.sensor.ads1115.py" class.
 https://github.com/adafruit/Adafruit_Python_ADS1x15 (Adafruit_ADS1x15)
+
+Needed for "eb.raspberry.motor.esc.py" class.
 http://abyz.me.uk/rpi/pigpio/download.html (pigpio)
+
+Needed for "eb.drone" classes.
 https://github.com/ArduPilot/pymavlink (pymavlink)
