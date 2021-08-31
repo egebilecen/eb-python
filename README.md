@@ -1,10 +1,11 @@
 This repo contains classes/wrappers to work with <b>Drones</b> that uses MAVLink, <b>image processing</b>,  <b>servo and ESC motor</b> control on Raspberry PI and <b>some sensors</b>.
+(More detailed information about classes and methods can be found in <b>eb</b> folder and it's subfolders. Only external dependencies are written across all documentation.) 
 
 # libs.txt
 Consists the links of the libraries that is needed for my classes to work. Make sure to check it because not all of the libraries are needed if you are not going to use every class.
 
 # Brief of Main Classes
-(More detailed information can be found in <b>eb</b> folder and it's subfolders. Only external dependencies are written across all documentation.) 
+(Those classes are located under "<b>eb/</b>" folder.)
 <br><br>
 <b>camera.py</b>
 
@@ -68,6 +69,7 @@ Consists the links of the libraries that is needed for my classes to work. Make 
 * Consists methods to create a UDP server. (Automatically sends "ping" message to all sockets in specified time interval to check whether they are disconnected.)
 
 # Brief of Drone Classes
+(Those classes are located under "<b>eb/drone/</b>" folder.)
 <b>action.py</b>
 
 * Consists methods that requires drone to take an action. Such as going to GPS coordinates, landing, arming, etc... (Changing desired speed(s), yaw and things similar to these also counts as an action. At least for me. :P)
@@ -116,4 +118,28 @@ Consists the links of the libraries that is needed for my classes to work. Make 
 
 * Consists methods to get drone's various informations. Such as GPS position, last heartbeat, arm status, flight mode etc...
 
+# Brief of Image Processing Classes
+(Those classes are located under "<b>eb/image_processing/</b>" folder.)
+<b>color.py</b>
+
+* Consists class definations for color types to make working with them easier.
+
 <br>
+<b>define.py</b>
+
+* Consists definations for specific colors in specific color spaces. Such as RED color values in HSV color space.
+
+<br>
+<b>detection.py</b>
+
+* Consists methods to detect specific things on a frame. Such as blob detection, corner detection, circle detection, etc...
+
+<br>
+<b>image.py</b>
+
+* Consists methods to work with images. For example encoding raw image to .JPG format.
+
+<br>
+<b>util.py</b>
+
+* Consists utility methods to make working on image processing easier. Such as filtering neighbor points, extracting information from point list (such as compass bearing between camera center point and the target point), getting closest point to the center, etc...
