@@ -158,4 +158,7 @@ Consists the links of the libraries that is needed for my classes to work. Make 
 
 * Class for control a servo motor.
 
-<br>
+# Brief of Sensor Classes
+(Those classes are located under "<b>eb/sensor/</b>" folder.)
+<br><br>
+All of the sensor classes are written for getting data. Please see the respective files for the sensor.
