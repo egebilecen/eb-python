@@ -70,6 +70,7 @@ Consists the links of the libraries that is needed for my classes to work. Make 
 
 # Brief of Drone Classes
 (Those classes are located under "<b>eb/drone/</b>" folder.)
+<br><br>
 <b>action.py</b>
 
 * Consists methods that requires drone to take an action. Such as going to GPS coordinates, landing, arming, etc... (Changing desired speed(s), yaw and things similar to these also counts as an action. At least for me. :P)
@@ -120,6 +121,7 @@ Consists the links of the libraries that is needed for my classes to work. Make 
 
 # Brief of Image Processing Classes
 (Those classes are located under "<b>eb/image_processing/</b>" folder.)
+<br><br>
 <b>color.py</b>
 
 * Consists class definations for color types to make working with them easier.
@@ -146,6 +148,7 @@ Consists the links of the libraries that is needed for my classes to work. Make 
 
 # Brief of Raspberry Classes
 (Those classes are located under "<b>eb/raspberry/</b>" folder.)
+<br><br>
 <b>motor/esc.py</b>
 
 * Class for control a brushless motor via ESC.
