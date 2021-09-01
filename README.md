@@ -45,7 +45,7 @@ Consists the links of the libraries that is needed for my classes to work. Make 
 <br>
 <b>method.py</b>
 
-* Consists methods to work with methods. Such as executing given method as param in background, calling the same function until it returns (or NOT returns) the desired value with an option to timeout and delay the execution the same method after each try, calling the same function X times, etc...
+* Consists methods to work with methods. Such as executing given method in background, calling the same function until it returns (or NOT returns) the desired value with an option to timeout and delay the execution of the same method after each try, calling the same function X times, etc...
 
 <br>
 <b>serialport.py</b>
