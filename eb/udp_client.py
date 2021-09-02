@@ -40,7 +40,9 @@ class UDP_Client:
                 elif callable(self._data_callback):
                     self._data_callback(data)
 
-        impl(self)
+        _ = threading.Thread(target=impl, args=(self,))
+        _.daemon = False
+        _.start()
 
     def send(self, byte_data):
         self._socket.sendto(byte_data, self._server_addr)
