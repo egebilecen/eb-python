@@ -15,6 +15,7 @@ class UDP_Client:
         self._server_addr   = (server_ip, server_port)
         self._buffer_size   = buffer_size
         self._data_callback = None
+        self._variables     = {}
 
     def set_data_callback(self, func):
         if callable(func):
@@ -32,17 +33,23 @@ class UDP_Client:
                     Logger.PrintLog("UDP CLIENT", "Couldn't connect to server. Is server online? (CONNECTION RESET ERROR)")
                     return
 
-                Logger.PrintLog("UDP CLIENT", "Recieved data: {}".format(data))
+                Logger.PrintLog("UDP CLIENT", "Recieved data: {}".format(" ".join("0x{:02x}".format(elem) for elem in data)))
 
                 if data == b"ping":
                     Logger.PrintLog("UDP CLIENT", "Sending pong.")
                     client_socket.send(b"pong")
                 elif callable(self._data_callback):
-                    self._data_callback(data)
+                    self._data_callback(self, data)
 
         _ = threading.Thread(target=impl, args=(self,))
         _.daemon = False
         _.start()
+
+    def set_variable(self, key, val):
+        self._variables[key] = val
+
+    def get_variable(self, key):
+        return self._variables[key]
 
     def send(self, byte_data):
         self._socket.sendto(byte_data, self._server_addr)
