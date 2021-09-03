@@ -49,8 +49,9 @@ class Camera:
                     Logger.PrintException(LOG_INFO, ex)
                     sleep(0.1)
             else:
-                Logger.PrintLog(LOG_INFO, "Camera is not open.")
-                sleep(1)
+                Logger.PrintLog(LOG_INFO, "Camera is not open. Terminating the thread.")
+                cls._status = 0
+                break
 
         cls._camera.release()
 
