@@ -60,6 +60,8 @@ class Camera:
 
     # Public Method(s)
     def start(self) -> None:
+        Logger.PrintLog(self.LOG_INFO+"start()", "Starting the camera. (Device ID: {})".format(self._device))
+        
         self._camera = cv2.VideoCapture(self._device)
 
         if self._file_name != "":
@@ -74,7 +76,10 @@ class Camera:
         t.daemon = False
         t.start()
 
+        Logger.PrintLog(self.LOG_INFO+"start()", "Camera should have been started.")
+
     def stop(self) -> None:
+        Logger.PrintLog(self.LOG_INFO+"stop()", "Stopping the camera.")
         self._status = 0
 
     def get_last_frame(self,
