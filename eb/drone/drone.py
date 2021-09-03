@@ -5,6 +5,7 @@
     Notes:
     * All method parameters related to time are based on milliseconds.
 """
+from eb.logger import Logger
 from pymavlink import mavutil
 import threading
 
@@ -82,6 +83,8 @@ class Drone:
         _.daemon = False
         _.start()
 
+        Logger.PrintLog(self.LOG_INFO+"__init__()", "Connecting to drone.")
+
         while "HEARTBEAT" not in self._messages \
         or    self._exception is not None:
             if self._exception is not None:
@@ -89,6 +92,8 @@ class Drone:
             elif Time.get_current_timestamp("ms") - start_timestamp >= timeout:
                 raise TimeoutError("Couldn't detect heartbeat in {} milliseconds."
                                    .format(str(timeout)))
+
+        Logger.PrintLog(self.LOG_INFO+"__init__()", "Successfully connected to drone.")
 
         # Request Messages
         def _set_message_intervals(cls):
