@@ -83,7 +83,7 @@ class Camera:
         self._status = 0
 
     def get_last_frame(self,
-                       raw_frame: bool = False):
+                       raw_frame: bool = False) -> bytes:
         if not raw_frame:
             return Image.Encode.FromRawImage(self._last_frame, self._frame_encode)
 
