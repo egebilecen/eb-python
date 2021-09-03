@@ -22,6 +22,7 @@ class UDP_Client:
 
     def connect(self):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self._socket.bind(("", 0))
 
         def impl(client_socket):
             while 1:
