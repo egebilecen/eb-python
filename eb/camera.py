@@ -2,7 +2,9 @@
     Author: Ege Bilecen
     Date  : 22.07.2020
 """
-from time import sleep
+from time   import sleep
+from typing import Union
+from numpy  import ndarray
 import cv2
 import threading
 
@@ -83,8 +85,10 @@ class Camera:
         self._status = 0
 
     def get_last_frame(self,
-                       raw_frame: bool = False) -> bytes:
+                       raw_frame: bool = False) -> Union[bytes, ndarray]:
         if not raw_frame:
+            # Returns bytes
             return Image.Encode.FromRawImage(self._last_frame, self._frame_encode)
 
+        # Returns numpy.ndarray
         return self._last_frame
