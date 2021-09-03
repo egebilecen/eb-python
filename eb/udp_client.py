@@ -22,7 +22,6 @@ class UDP_Client:
 
     def connect(self):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self._socket.sendto(b"", self._server_addr)
 
         def impl(client_socket):
             while 1:
