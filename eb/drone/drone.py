@@ -5,12 +5,13 @@
     Notes:
     * All method parameters related to time are based on milliseconds.
 """
-from eb.logger import Logger
 from pymavlink import mavutil
 import threading
 
 from eb.time   import Time
 from eb.method import Method
+from eb.logger import Logger
+
 
 from eb.drone.telemetry import Telemetry
 from eb.drone.action    import Action
