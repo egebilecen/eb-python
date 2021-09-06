@@ -7,6 +7,7 @@ import threading
 
 from eb.logger import Logger
 from eb.method import Method
+from eb.math   import Math
 from eb.time   import Time
 import eb.drone.mavlink_helper as eb_mavutil
 
@@ -635,3 +636,37 @@ class Action:
                 return False
 
         return Method.Repeat.until_value(impl, (), retries, ret_val=True)[0]
+
+    def rc_channel_override(self, channel, val_or_percentage, use_val=False, min_ppm_us=1000, max_ppm_us=2000):
+        if channel < 1 \
+        or channel > 8:
+            raise ValueError("Channel must be between 1 and 8. (inclusive)")
+        
+        write_val = 0
+
+        if use_val:
+            if val_or_percentage < min_ppm_us:
+                raise ValueError("PPM us value cannot be less than min_ppm_us.")
+            
+            if val_or_percentage > max_ppm_us:
+                raise ValueError("PPM us value cannot be less than max_ppm_us.")
+
+            write_val = val_or_percentage
+        else: 
+            if val_or_percentage < 0 \
+            or val_or_percentage > 100:
+                raise ValueError("Percentage must be between 0 and 100. (inclusive)")
+
+            write_val = Math.Value.map(val_or_percentage, 0, 100, min_ppm_us, max_ppm_us)
+        
+        UINT16_MAX = 65535
+        raw_channel_values = [UINT16_MAX for _ in range(8)]
+        raw_channel_values[channel - 1] = write_val
+
+        eb_mavutil.Enum.get_method_reference(self._drone.mav(), "RC_CHANNELS_OVERRIDE")(
+            self._drone._get_target_system(),
+            self._drone._get_target_component(),
+            *raw_channel_values
+        )
+
+        return True
