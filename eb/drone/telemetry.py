@@ -81,3 +81,9 @@ class Telemetry:
         self._drone._battery["last_update"] = Time.get_current_timestamp("ms") - self._drone._battery["timestamp"]
 
         return self._drone._battery
+
+    def get_raw_rc_channel_values(self):
+        try: self._drone._raw_rc_channels["last_update"] = Time.get_current_timestamp("ms") - self._drone._raw_rc_channels["timestamp"]
+        except KeyError: pass
+
+        return self._drone._raw_rc_channels

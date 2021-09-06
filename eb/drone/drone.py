@@ -48,7 +48,18 @@ class Drone:
         self._variables  = {}
         self._first_arm  = True
 
-        # Below will be populated, see _thread_handler().
+        self._message_request_list = {
+            "SYS_STATUS"          : {"ref_int" :  1},
+            "SYSTEM_TIME"         : {"ref_int" :  2},
+            "GPS_RAW_INT"         : {"ref_int" : 24},
+            "ATTITUDE"            : {"ref_int" : 30},
+            "LOCAL_POSITION_NED"  : {"ref_int" : 32},
+            "GLOBAL_POSITION_INT" : {"ref_int" : 33},
+            "RC_CHANNELS_RAW"     : {"ref_int" : 35},
+            "VFR_HUD"             : {"ref_int" : 74}
+        }
+
+        # All the variables below will be populated, see _thread_handler().
         self._messages = {
             "COMMAND_ACK" : {}
         }
@@ -64,6 +75,7 @@ class Drone:
         self._attitude        = {}
         self._local_position  = {}
         self._global_position = {}
+        self._raw_rc_channels = {}
         self._battery         = {}
         self._air_speed       = None
         self._ground_speed    = None
@@ -98,18 +110,8 @@ class Drone:
 
         # Request Messages
         def _set_message_intervals(cls):
-            message_list = {
-                "SYS_STATUS"          : {"ref_int" :  1},
-                "SYSTEM_TIME"         : {"ref_int" :  2},
-                "GPS_RAW_INT"         : {"ref_int" : 24},
-                "ATTITUDE"            : {"ref_int" : 30},
-                "LOCAL_POSITION_NED"  : {"ref_int" : 32},
-                "GLOBAL_POSITION_INT" : {"ref_int" : 33},
-                "VFR_HUD"             : {"ref_int" : 74}
-            }
-
-            for msg_str in message_list:
-                cls._set_message_interval(message_list[msg_str]["ref_int"], 1000 / self._rate)
+            for msg_str in cls._message_request_list:
+                cls._set_message_interval(cls._message_request_list[msg_str]["ref_int"], 1000 / self._rate)
 
         _ = threading.Thread(target=_set_message_intervals, args=(self,))
         _.daemon = False
@@ -202,6 +204,19 @@ class Drone:
                     cls._armed = True
                 else: cls._armed = False
 
+            # SYS_STATUS
+            elif packet_type == "SYS_STATUS":
+                cls._battery = {
+                    "voltage"   : msg_packet["voltage_battery"] / (10 ** 3), # V
+                    "current"   : msg_packet["current_battery"] / (10 ** 2), # A
+                    "remaining" : msg_packet["battery_remaining"],           # %
+                    "timestamp" : msg_packet["eb_timestamp"]
+                }
+
+            # SYSTEM_TIME
+            elif packet_type == "SYSTEM_TIME":
+                cls._boot_time = (msg_packet["time_boot_ms"], msg_packet["eb_timestamp"])
+
             # GPS_RAW_INT
             elif packet_type == "GPS_RAW_INT":
                 cls._gps = {
@@ -257,6 +272,20 @@ class Drone:
                     "timestamp" : msg_packet["eb_timestamp"]
                 }
 
+            # RC_CHANNELS_RAW
+            elif packet_type == "RC_CHANNELS_RAW":
+                cls._raw_rc_channels = {
+                    "channel_1" : msg_packet["chan1_raw"],
+                    "channel_2" : msg_packet["chan2_raw"],
+                    "channel_3" : msg_packet["chan3_raw"],
+                    "channel_4" : msg_packet["chan4_raw"],
+                    "channel_5" : msg_packet["chan5_raw"],
+                    "channel_6" : msg_packet["chan6_raw"],
+                    "channel_7" : msg_packet["chan7_raw"],
+                    "channel_8" : msg_packet["chan8_raw"],
+                    "timestamp" : msg_packet["eb_timestamp"]
+                }
+
             # VFR_HUD
             elif packet_type == "VFR_HUD":
                 cls._air_speed    = (msg_packet["airspeed"],    msg_packet["eb_timestamp"])
@@ -265,19 +294,6 @@ class Drone:
                 cls._throttle     = (msg_packet["throttle"],    msg_packet["eb_timestamp"])
                 cls._alt          = (msg_packet["alt"],         msg_packet["eb_timestamp"])
                 cls._climb_rate   = (msg_packet["climb"],       msg_packet["eb_timestamp"])
-
-            # SYS_STATUS
-            elif packet_type == "SYS_STATUS":
-                cls._battery = {
-                    "voltage"   : msg_packet["voltage_battery"] / (10 ** 3), # V
-                    "current"   : msg_packet["current_battery"] / (10 ** 2), # A
-                    "remaining" : msg_packet["battery_remaining"],           # %
-                    "timestamp" : msg_packet["eb_timestamp"]
-                }
-
-            # SYSTEM_TIME
-            elif packet_type == "SYSTEM_TIME":
-                cls._boot_time = (msg_packet["time_boot_ms"], msg_packet["eb_timestamp"])
 
             # COMMAND_ACK
             elif packet_type == "COMMAND_ACK":
