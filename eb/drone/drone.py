@@ -110,6 +110,7 @@ class Drone:
 
         # Request Messages
         def _set_message_intervals(cls):
+            Logger.PrintLog(cls.LOG_INFO+"_set_message_intervals()", "Setting message intervals.")
             for msg_str in cls._message_request_list:
                 cls._set_message_interval(cls._message_request_list[msg_str]["ref_int"], 1000 / self._rate)
 
@@ -139,8 +140,12 @@ class Drone:
 
             res = self.wait_cmd_ack(COMMAND, timeout)
 
-            if res == 0: return True
-            else:        return False
+            if res == 0: 
+                Logger.PrintLog(self.LOG_INFO+"_set_message_interval()", "Message interval sucessfully set for {}.".format(msg_id))
+                return True
+            else:
+                Logger.PrintLog(self.LOG_INFO+"_set_message_interval()", "Setting message interval failed for {}.".format(msg_id))
+                return False
 
         interval_res = Method.Repeat.until_value(impl, (), retries, ret_val=True)[0]
 
