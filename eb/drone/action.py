@@ -607,6 +607,22 @@ class Action:
 
         return Method.Repeat.until_value(impl, (), retries, ret_val=True)[0]
 
+    """
+        Main Out 1 - Servo Channel: 1
+        Main Out 2 - Servo Channel: 2
+        Main Out 3 - Servo Channel: 3
+        Main Out 4 - Servo Channel: 4
+        Main Out 5 - Servo Channel: 5
+        Main Out 6 - Servo Channel: 6
+        Main Out 7 - Servo Channel: 7
+        Main Out 8 - Servo Channel: 8
+        Aux  Out 1 - Servo Channel: 9
+        Aux  Out 2 - Servo Channel: 10
+        Aux  Out 3 - Servo Channel: 11
+        Aux  Out 4 - Servo Channel: 12
+        Aux  Out 5 - Servo Channel: 13
+        Aux  Out 6 - Servo Channel: 14
+    """
     def set_relay(self, channel, status, retries=12, timeout=500):
         Logger.PrintLog(self.LOG_INFO, "set_relay() - Setting relay's status at channel {} to {}."
                         .format(str(channel), str(status)))
