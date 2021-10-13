@@ -1,6 +1,7 @@
 import socket
 import threading
 from time import time, sleep
+from typing import Type
 
 from eb.logger import Logger
 
@@ -21,9 +22,10 @@ class UDP_Server:
                  buffer_size        = 512,
                  is_async           = False,
                  is_logging_enabled = True):
-        self._server_addr = (ip, port)
-        self._async       = is_async
-        self._buffer_size = buffer_size
+        self._server_addr  = (ip, port)
+        self._async        = is_async
+        self._buffer_size  = buffer_size
+        self._data_handler = None
 
         Logger.LOGGING_ENABLED = is_logging_enabled
 
@@ -62,7 +64,16 @@ class UDP_Server:
 
         Logger.PrintLog("UDP SERVER", "[!] UDP Server ping thread has ended.")
 
+    def set_data_handler(self, func):
+        if not callable(func):
+            raise TypeError("Arg. func is not a function!")
+
+        self._data_handler = func
+
     def run(self):
+        if self._data_handler is None:
+            raise Exception("Data handler is not set. Cannot run the server!")
+
         def impl(udp_server):
             ping_thread = threading.Thread(target=UDP_Server._ping, args=(self,), daemon=True)
             ping_thread.start()
@@ -91,6 +102,9 @@ class UDP_Server:
                 elif data == b"pong":
                     # Logger.PrintLog("UDP SERVER", "Received pong from {}:{}.".format(addr[0], addr[1]))
                     udp_server._socket_list[addr]["last_activity"] = int(time())
+                    continue
+
+                self._data_handler(addr, data)
 
         if not self._async:
             impl(self)
