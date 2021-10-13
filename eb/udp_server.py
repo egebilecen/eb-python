@@ -71,7 +71,7 @@ class UDP_Server:
 
             while 1:
                 try:
-                    data, addr = udp_server._socket.recvfrom(512)
+                    data, addr = udp_server._socket.recvfrom(udp_server._buffer_size)
                 except ConnectionResetError and ConnectionAbortedError and ConnectionError as ex:
                     Logger.PrintException("UDP SERVER", ex)
                     continue
