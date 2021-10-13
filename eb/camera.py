@@ -103,18 +103,18 @@ class Camera:
                        mirror      : bool = True) -> Union[bytes, ndarray]:
         last_frame = self._last_frame
 
-        if last_frame != b"":
+        if len(last_frame) != 0:
             if mirror:
                 last_frame = cv2.flip(last_frame, 1)
 
             if frame_encode:
-                if last_frame == b"":
-                    raise ValueError("Last frame is empty! Cannot encode it.")
-
                 # Returns bytes
                 return Image.Encode.FromRawImage(last_frame, self._frame_encode)
 
             # Returns numpy.ndarray or bytes if frame is empty
             return last_frame
+
+        if frame_encode:
+            raise ValueError("Last frame is empty! Cannot encode it.")
 
         return b""
