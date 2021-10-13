@@ -16,13 +16,16 @@ class UDP_Server:
     _async                   = False
 
     def __init__(self,
-                 ip          = "192.168.1.2",
-                 port        = 6969,
-                 is_async    = False,
-                 buffer_size = 512):
+                 ip                 = "192.168.1.2",
+                 port               = 6969,
+                 buffer_size        = 512,
+                 is_async           = False,
+                 is_logging_enabled = True):
         self._server_addr = (ip, port)
         self._async       = is_async
         self._buffer_size = buffer_size
+
+        Logger.LOGGING_ENABLED = is_logging_enabled
 
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._socket.bind(self._server_addr)
@@ -61,7 +64,7 @@ class UDP_Server:
 
     def run(self):
         def impl(udp_server):
-            ping_thread = threading.Thread(target=UDP_Server._ping, args=(self,), daemon=False)
+            ping_thread = threading.Thread(target=UDP_Server._ping, args=(self,), daemon=True)
             ping_thread.start()
 
             Logger.PrintLog("UDP SERVER", "[?] UDP Server listening for connections.")
@@ -73,7 +76,7 @@ class UDP_Server:
                     Logger.PrintException("UDP SERVER", ex)
                     continue
 
-                Logger.PrintLog("UDP SERVER", "{}:{} sent data: {}".format(addr[0], addr[1], data))
+                Logger.PrintLog("UDP SERVER", "{}:{} sent {} bytes long data: {}".format(addr[0], addr[1], len(data), " ".join("0x{:02x}".format(elem) for elem in data)))
 
                 if addr not in udp_server._socket_list:
                     Logger.PrintLog("UDP SERVER", "[?] {}:{} has connected to server.".format(addr[0], addr[1]))
@@ -92,7 +95,7 @@ class UDP_Server:
         if not self._async:
             impl(self)
         else:
-            server_thread = threading.Thread(target=impl, args=(self,), daemon=False)
+            server_thread = threading.Thread(target=impl, args=(self,), daemon=True)
             server_thread.start()
 
     def publish_data(self, byte_data):
