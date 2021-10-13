@@ -4,9 +4,7 @@ import struct
 import hashlib
 
 from math import ceil
-
 from eb.logger import Logger
-from eb.udp_server import UDP_Server
 
 class UDP_Client:
     MAX_DATA_SIZE = 65535 - 8 - 20

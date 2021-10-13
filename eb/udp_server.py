@@ -15,7 +15,6 @@ class UDP_Server:
     _socket                  = None
     _buffer_size             = 512
     _data_handler            = None
-    _chunked_data_buffer     = {}
 
     _server_ping_interval_ms = 3000
     _client_timeout_ms       = 5000
@@ -99,10 +98,13 @@ class UDP_Server:
                     connect_time = int(time())
 
                     udp_server._socket_list[addr] = {
-                        "connected"     : connect_time,
-                        "last_activity" : 0,
-                        "last_ping"     : connect_time
+                        "connected"           : connect_time,
+                        "last_activity"       : 0,
+                        "last_ping"           : connect_time,
+                        "chunked_data_buffer" : {}
                     }
+
+                client_socket = udp_server._socket_list[addr]
                 
                 Logger.PrintLog("UDP SERVER", "{}:{} sent {} bytes long data.".format(addr[0], addr[1], len(data)))
 
@@ -122,6 +124,10 @@ class UDP_Server:
 
                     chunk_count = struct.unpack("<B", data[chunked_data_start_bytes_len : chunked_data_start_bytes_len + 1])[0]
                     chunk_id    = struct.unpack("<B", data[chunked_data_start_bytes_len + 1 : chunked_data_start_bytes_len + 1 + 1])[0]
+
+                    if chunk_id in client_socket["chunked_data_buffer"]:
+                        continue
+
                     chunk_md5   = data[chunked_data_start_bytes_len + 1 + 1      : chunked_data_start_bytes_len + 1 + 1 + 16]
                     chunk_data  = data[chunked_data_start_bytes_len + 1 + 1 + 16 : len(data) - chunked_data_end_bytes_len]
 
@@ -134,15 +140,15 @@ class UDP_Server:
                                                                                                                                                                             len(chunk_data)))
 
                     if is_md5_matches:
-                        self._chunked_data_buffer[chunk_id] = chunk_data
+                        client_socket["chunked_data_buffer"][chunk_id] = chunk_data
                     
-                    if len(self._chunked_data_buffer) == chunk_count:
+                    if len(client_socket["chunked_data_buffer"]) == chunk_count:
                         data = b""
 
                         for i in range(1, chunk_count + 1):
-                            data += self._chunked_data_buffer[i]
+                            data += client_socket["chunked_data_buffer"][i]
 
-                        self._chunked_data_buffer.clear()
+                        client_socket["chunked_data_buffer"].clear()
                         is_continue = False
 
                     if is_continue: continue
