@@ -64,7 +64,7 @@ Consists the links of the libraries that is needed for my classes to work. Make 
 * Consists methods to connect to a UDP server. (Automatically responds to any "ping" message from server with "pong". You may want to uncomment that line.)
 
 <br>
-<b>udp_client.py</b>
+<b>udp_server.py</b>
 
 * Consists methods to create a UDP server. (Automatically sends "ping" message to all sockets in specified time interval to check whether they are disconnected.)
 
