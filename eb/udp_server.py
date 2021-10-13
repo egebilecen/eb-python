@@ -113,7 +113,6 @@ class UDP_Server:
                     udp_server._socket_list[addr]["last_activity"] = int(time())
                     continue
                 
-                
                 # Check if chunked data packet
                 chunked_data_start_bytes_len = len(self.CHUNKED_DATA_START_BYTES)
                 chunked_data_end_bytes_len   = len(self.CHUNKED_DATA_END_BYTES)
