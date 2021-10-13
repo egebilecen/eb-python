@@ -13,12 +13,12 @@ from eb.image_processing.image import Image
 
 class Camera:
     def __init__(self,
-                 device      : int   = 0,
-                 resolution  : tuple = (640, 480),
-                 fps         : int   = 30,
-                 file_name   : str   = "",
-                 output_dir  : str   = "./video_output/",
-                 frame_encode: str   = ".jpg") -> None:
+                 device      : int             = 0,
+                 resolution  : tuple[int, int] = (640, 480),
+                 fps         : int             = 30,
+                 file_name   : str             = "",
+                 output_dir  : str             = "./video_output/",
+                 frame_encode: str             = ".jpg") -> None:
         self._last_frame   = b""
         self._status       = 0
         self._device       = device
@@ -75,7 +75,7 @@ class Camera:
         self._status = 1
 
         t = threading.Thread(target=self._thread_handler, args=(self,))
-        t.daemon = False
+        t.daemon = True
         t.start()
 
         Logger.PrintLog(self.LOG_INFO+"start()", "Camera should have been started.")
@@ -84,11 +84,37 @@ class Camera:
         Logger.PrintLog(self.LOG_INFO+"stop()", "Stopping the camera.")
         self._status = 0
 
-    def get_last_frame(self,
-                       raw_frame: bool = False) -> Union[bytes, ndarray]:
-        if not raw_frame:
-            # Returns bytes
-            return Image.Encode.FromRawImage(self._last_frame, self._frame_encode)
+    def display(self) -> None:
+        if not self._status:
+            raise Exception("Camera is not started.")
 
-        # Returns numpy.ndarray
-        return self._last_frame
+        while 1:
+            last_frame = self.get_last_frame(frame_encode = False)
+
+            if last_frame == b"": continue
+
+            cv2.imshow("Camera (Device ID: {}, Resolution: {}x{})".format(self._device, self._resolution[0], self._resolution[1]), last_frame)
+            if cv2.waitKey(1) == 27: break
+
+        cv2.destroyAllWindows()
+
+    def get_last_frame(self,
+                       frame_encode: bool = False,
+                       mirror      : bool = True) -> Union[bytes, ndarray]:
+        last_frame = self._last_frame
+
+        if last_frame != b"":
+            if mirror:
+                last_frame = cv2.flip(last_frame, 1)
+
+            if frame_encode:
+                if last_frame == b"":
+                    raise ValueError("Last frame is empty! Cannot encode it.")
+
+                # Returns bytes
+                return Image.Encode.FromRawImage(last_frame, self._frame_encode)
+
+            # Returns numpy.ndarray or bytes if frame is empty
+            return last_frame
+
+        return b""
