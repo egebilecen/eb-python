@@ -1,7 +1,5 @@
 from time import sleep
 
-from matplotlib.pyplot import imshow
-
 from eb.camera     import Camera
 from eb.udp_client import UDP_Client
 from eb.time       import Time
