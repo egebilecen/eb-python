@@ -1,6 +1,9 @@
 Needed for camera.py and "eb/image_processing" classes.
 https://pypi.org/project/opencv-contrib-python/ (cv2)
 
+Needed for "eb/image_processing" classes.
+https://github.com/numpy/numpy (numpy)
+
 Needed for i2c.py and "eb/sensor" classes.
 https://pypi.org/project/smbus2/ (smbus2)
 
