@@ -1,14 +1,21 @@
+import hashlib
 import socket
 import threading
-from time import time, sleep
-from typing import Type
+import struct
+from time import time
 
 from eb.logger import Logger
 
 class UDP_Server:
+    MAX_DATA_SIZE = 65535 - 8 - 20
+    CHUNKED_DATA_START_BYTES = b"\x6E\x62"
+    CHUNKED_DATA_END_BYTES   = b"\x52\xE3"
+
     _server_addr             = ("", 6969)
     _socket                  = None
     _buffer_size             = 512
+    _data_handler            = None
+    _chunked_data_buffer     = {}
 
     _server_ping_interval_ms = 3000
     _client_timeout_ms       = 5000
@@ -25,7 +32,6 @@ class UDP_Server:
         self._server_addr  = (ip, port)
         self._async        = is_async
         self._buffer_size  = buffer_size
-        self._data_handler = None
 
         Logger.LOGGING_ENABLED = is_logging_enabled
 
@@ -87,8 +93,6 @@ class UDP_Server:
                     Logger.PrintException("UDP SERVER", ex)
                     continue
 
-                Logger.PrintLog("UDP SERVER", "{}:{} sent {} bytes long data: {}".format(addr[0], addr[1], len(data), " ".join("0x{:02x}".format(elem) for elem in data)))
-
                 if addr not in udp_server._socket_list:
                     Logger.PrintLog("UDP SERVER", "[?] {}:{} has connected to server.".format(addr[0], addr[1]))
 
@@ -99,10 +103,49 @@ class UDP_Server:
                         "last_activity" : 0,
                         "last_ping"     : connect_time
                     }
-                elif data == b"pong":
+                
+                Logger.PrintLog("UDP SERVER", "{}:{} sent {} bytes long data.".format(addr[0], addr[1], len(data)))
+
+                if data == b"pong":
                     # Logger.PrintLog("UDP SERVER", "Received pong from {}:{}.".format(addr[0], addr[1]))
                     udp_server._socket_list[addr]["last_activity"] = int(time())
                     continue
+                
+                
+                # Check if chunked data packet
+                chunked_data_start_bytes_len = len(self.CHUNKED_DATA_START_BYTES)
+                chunked_data_end_bytes_len   = len(self.CHUNKED_DATA_END_BYTES)
+
+                if  data[:chunked_data_start_bytes_len] == self.CHUNKED_DATA_START_BYTES \
+                and data[-chunked_data_end_bytes_len:]  == self.CHUNKED_DATA_END_BYTES:
+                    is_continue = True
+
+                    chunk_count = struct.unpack("<B", data[chunked_data_start_bytes_len : chunked_data_start_bytes_len + 1])[0]
+                    chunk_id    = struct.unpack("<B", data[chunked_data_start_bytes_len + 1 : chunked_data_start_bytes_len + 1 + 1])[0]
+                    chunk_md5   = data[chunked_data_start_bytes_len + 1 + 1      : chunked_data_start_bytes_len + 1 + 1 + 16]
+                    chunk_data  = data[chunked_data_start_bytes_len + 1 + 1 + 16 : len(data) - chunked_data_end_bytes_len]
+
+                    is_md5_matches = chunk_md5 == hashlib.md5(chunk_data).digest()
+
+                    Logger.PrintLog("UDP SERVER", "[?] Received chunked data. Total chunk count: {}, chunk id: {}, MD5: {} (Is matches? {}), data length: {} bytes.".format(chunk_count, 
+                                                                                                                                                                            chunk_id, 
+                                                                                                                                                                            chunk_md5.hex(), 
+                                                                                                                                                                            "YES" if is_md5_matches else "NO", 
+                                                                                                                                                                            len(chunk_data)))
+
+                    if is_md5_matches:
+                        self._chunked_data_buffer[chunk_id] = chunk_data
+                    
+                    if len(self._chunked_data_buffer) == chunk_count:
+                        data = b""
+
+                        for i in range(1, chunk_count + 1):
+                            data += self._chunked_data_buffer[i]
+
+                        self._chunked_data_buffer.clear()
+                        is_continue = False
+
+                    if is_continue: continue
 
                 self._data_handler(addr, data)
 
