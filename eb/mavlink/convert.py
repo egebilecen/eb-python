@@ -2,7 +2,7 @@
     Author: Ege Bilecen
     Date  : 15.08.2020
 """
-from eb.drone.mission import Mission
+from eb.mavlink._mission import Mission
 
 class Convert:
     @staticmethod

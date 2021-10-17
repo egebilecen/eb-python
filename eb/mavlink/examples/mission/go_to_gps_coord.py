@@ -2,7 +2,7 @@
          o==[Test Script]==o
    ______________________________
  / \  Globals:                   \.
-|   | * drone                    |.
+|   | * vehicle                  |.
  \_ | * control                  |.
     |                            |.
     |        Description         |.
@@ -19,29 +19,29 @@
 """
 from time import sleep
 
-from eb.camera     import Camera
-from eb.logger     import Logger
-from eb.drone.math import Math as Drone_Math
+from eb.camera       import Camera
+from eb.logger       import Logger
+from eb.mavlink.math import Math as VehicleMath
 import config
 
 camera = Camera(config.Camera.DEVICE_INDEX, file_name  = "flight_vid")
 camera.start()
 sleep(3)
 
-curr_pos = drone.telemetry().get_global_position()
+curr_pos = vehicle.telemetry().get_global_position()
 
-dest_pos = Drone_Math.calculate_global_position_from_heading_and_distance({"lat" : curr_pos["lat"], "lon" : curr_pos["lon"]},
-                                                                          70, 5.5)
+dest_pos = VehicleMath.calculate_global_position_from_heading_and_distance({"lat" : curr_pos["lat"], "lon" : curr_pos["lon"]},
+                                                                           70, 5.5)
 
 control["position"]["hold"]["skip"] = True
 sleep(0.5)
 
 Logger.PrintLog("Going to position.")
 while 1:
-    drone.action().go_to_global_position(dest_pos["lat"], dest_pos["lon"], curr_pos["relative_alt"])
+    vehicle.action().go_to_global_position(dest_pos["lat"], dest_pos["lon"], curr_pos["relative_alt"])
     sleep(0.25)
 
-    res = drone.control().is_reached_to_global_position(dest_pos["lat"], dest_pos["lon"], curr_pos["relative_alt"], 0.15, 0)
+    res = vehicle.control().is_reached_to_global_position(dest_pos["lat"], dest_pos["lon"], curr_pos["relative_alt"], 0.15, 0)
 
     if res: break
 

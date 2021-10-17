@@ -5,14 +5,14 @@
 
 from time import sleep
 
-from eb.drone.drone import Drone
-import eb.drone.mavlink_helper as eb_mavutil
+from   eb.mavlink.vehicle import Vehicle
+import eb.mavlink.helper      as eb_mavutil
 
-drone = Drone("/dev/ttyTHS1",
-              115200,
-              timeout              = 10000,
-              scripts_dir          = "./epl_scripts/",
-              mission_control_rate = 4)
+drone = Vehicle("/dev/ttyTHS1",
+                115200,
+                timeout              = 10000,
+                scripts_dir          = "./epl_scripts/",
+                mission_control_rate = 4)
 
 drone.action().set_flight_mode("LOITER")
 

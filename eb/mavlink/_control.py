@@ -2,19 +2,19 @@
     Author: Ege Bilecen
     Date  : 04.09.2020
 """
-from eb.logger     import Logger
-from eb.math       import Math as EB_Math
-from eb.drone.math import Math
+from eb.logger       import Logger
+from eb.math         import Math as EB_Math
+from eb.mavlink.math import Math
 
 class Control:
     def __init__(self,
-                 drone):
-        self.LOG_INFO = "control.py"
-        self._drone   = drone
+                 vehicle):
+        self.LOG_INFO = "_control.py"
+        self._vehicle = vehicle
 
     # dest_rel_alt - meters
     def is_reached_to_relative_alt(self, dest_rel_alt, threshold=0.5):
-        curr_rel_alt = self._drone.telemetry().get_global_position()["relative_alt"]
+        curr_rel_alt = self._vehicle.telemetry().get_global_position()["relative_alt"]
 
         Logger.PrintLog(self.LOG_INFO, "is_reached_to_relative_alt() - Current relative altitude: {}, Destination relative altitude: {}, Threshold: {}."
                         .format(str(curr_rel_alt), str(dest_rel_alt), str(threshold)))
@@ -28,7 +28,7 @@ class Control:
 
     def is_reached_to_global_position(self, dest_lat, dest_lon, dest_rel_alt, threshold=0.5, acceptance_radius=1):
         if self.is_reached_to_relative_alt(dest_rel_alt, threshold):
-            curr_global_pos = self._drone.telemetry().get_global_position()
+            curr_global_pos = self._vehicle.telemetry().get_global_position()
 
             current_pos = {
                 "lat" : curr_global_pos["lat"],
@@ -57,7 +57,7 @@ class Control:
         return False
 
     def is_reached_to_local_position(self, dest_x, dest_y, dest_z, threshold=0.1):
-        curr_local_pos = self._drone.telemetry().get_local_position()
+        curr_local_pos = self._vehicle.telemetry().get_local_position()
 
         if dest_z - threshold <= curr_local_pos["z"] <= dest_z + threshold:
             dist_to_dest = EB_Math.TwoDimensional.distance_between_two_points(
@@ -79,4 +79,4 @@ class Control:
         return False
 
     def calculate_global_heading_from_relative_heading(self, heading_angle):
-        return (self._drone.telemetry().get_heading()[0] + heading_angle) % 360
+        return (self._vehicle.telemetry().get_heading()[0] + heading_angle) % 360

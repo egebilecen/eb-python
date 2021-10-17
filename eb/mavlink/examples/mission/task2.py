@@ -2,7 +2,7 @@
         o==[Task 2 Script]==o
    ______________________________
  / \  Globals:                   \.
-|   | * drone                    |.
+|   | * vehicle                  |.
  \_ | * control                  |.
     |   _________________________|___
     |  /  Ege Bilecen - 09.09.2020  /.
@@ -16,12 +16,14 @@
     coordinates which is the way that used in this script.
 """
 from time import sleep
-from eb.logger     import Logger
-from eb.compass    import Compass
-from eb.method     import Method
-from eb.time       import Time
-from eb.drone.math import Math as Drone_Math
+
+from eb.logger       import Logger
+from eb.compass      import Compass
+from eb.method       import Method
+from eb.time         import Time
+from eb.mavlink.math import Math as VehicleMath
 from eb.image_processing.util import Util
+
 import config
 import func
 
@@ -38,7 +40,7 @@ WATER_PICKUP_POOL_COORDS     = config.Drone.Task.Two.WATER_PICKUP_POOL_COORDS
 HEADING_THRESHOLD            = config.Drone.Task.Two.HEADING_THRESHOLD
 WATER_PICKUP_LINE_COORDS     = config.Drone.Task.Two.WATER_PICKUP_LINE_COORDS
 
-HOME_POSITION         = drone.get_variable("eb_home_pos")
+HOME_POSITION         = vehicle.get_variable("eb_home_pos")
 LAND_POSITION         = config.Drone.Task.Two.LAND_POSITION
 
 FLIGHT_ALTITUDE       = config.Drone.Task.Two.FLIGHT_ALTITUDE
@@ -48,16 +50,16 @@ WATER_DROP_ALTITUDE   = config.Drone.Task.Two.WATER_DROP_ALTITUDE
 ALTITUDE_THRESHOLD    = config.Drone.Task.Two.ALTITUDE_THRESHOLD
 
 # Variables
-dist_sensor = drone.get_variable("dist_sensor")
-camera      = drone.get_variable("camera")
+dist_sensor = vehicle.get_variable("dist_sensor")
+camera      = vehicle.get_variable("camera")
 first_tour_completed = False
 
 while 1:
     try:
-        if drone.mission().get_status() != 1:
+        if vehicle.mission().get_status() != 1:
             Logger.PrintLog(LOG_INFO + "Mission status is not 1. Aborting...")
             break
-        elif drone.telemetry().get_flight_mode() != "GUIDED":
+        elif vehicle.telemetry().get_flight_mode() != "GUIDED":
             Logger.PrintLog(LOG_INFO + "Flight mode is not GUIDED. Aborting...")
             break
 
@@ -73,15 +75,15 @@ while 1:
             "relative_alt" : dest_alt
         }
 
-        Method.Wait.until_value(drone.control().is_reached_to_global_position,
+        Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                 (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                 0, 250, ret_val=True)
 
         Logger.PrintLog(LOG_INFO + "Reached to Pole 2's alignment. Going for 5 meters in 45 degree heading.")
 
         # Do fake circle toward right
-        current_pos = drone.telemetry().get_global_position()
-        dest_pos    = Drone_Math.calculate_global_position_from_heading_and_distance({"lat" : current_pos["lat"], "lon" : current_pos["lon"]},
+        current_pos = vehicle.telemetry().get_global_position()
+        dest_pos    = VehicleMath.calculate_global_position_from_heading_and_distance({"lat" : current_pos["lat"], "lon" : current_pos["lon"]},
                                                                                      Compass.add_to_heading(POLE_COMPASS_BEARING, 30),
                                                                                      15)
         dest_alt    = FLIGHT_ALTITUDE
@@ -92,14 +94,14 @@ while 1:
             "relative_alt" : dest_alt
         }
 
-        Method.Wait.until_value(drone.control().is_reached_to_global_position,
+        Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                 (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                 0, 250, ret_val=True)
 
         # Go to Pole 2
         Logger.PrintLog(LOG_INFO + "Going to in front of Pole 2.")
 
-        dest_pos = Drone_Math.calculate_global_position_from_heading_and_distance({"lat" : POLE_2_COORDS[0], "lon" : POLE_2_COORDS[1]},
+        dest_pos = VehicleMath.calculate_global_position_from_heading_and_distance({"lat" : POLE_2_COORDS[0], "lon" : POLE_2_COORDS[1]},
                                                                                   POLE_COMPASS_COUNTER_BEARING,
                                                                                   5)
         dest_alt = FLIGHT_ALTITUDE
@@ -110,12 +112,12 @@ while 1:
             "relative_alt" : dest_alt
         }
 
-        Method.Wait.until_value(drone.control().is_reached_to_global_position,
+        Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                 (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                 0, 250, ret_val=True)
 
         if first_tour_completed:
-            bg_exec_status = Method.execute_in_background(func.lower_water_pump, (drone,))
+            bg_exec_status = Method.execute_in_background(func.lower_water_pump, (vehicle,))
 
             # Go to water pickup pool coords
             dest_pos = {"lat" : WATER_PICKUP_POOL_COORDS[0], "lon" : WATER_PICKUP_POOL_COORDS[1]}
@@ -127,7 +129,7 @@ while 1:
                 "relative_alt" : dest_alt
             }
 
-            Method.Wait.until_value(drone.control().is_reached_to_global_position,
+            Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                     (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                     0, 250, ret_val=True)
 
@@ -139,7 +141,7 @@ while 1:
                 "relative_alt" : dest_alt
             }
 
-            Method.Wait.until_value(drone.control().is_reached_to_global_position,
+            Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                     (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                     0, 250, ret_val=True)
 
@@ -151,7 +153,7 @@ while 1:
                 "relative_alt" : dest_alt
             }
 
-            Method.Wait.until_value(drone.control().is_reached_to_global_position,
+            Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                     (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                     0, 250, ret_val=True)
 
@@ -163,7 +165,7 @@ while 1:
                 "relative_alt" : dest_alt
             }
 
-            Method.Wait.until_value(drone.control().is_reached_to_global_position,
+            Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                     (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                     0, 250, ret_val=True)
 
@@ -175,7 +177,7 @@ while 1:
                 "relative_alt" : dest_alt
             }
 
-            Method.Wait.until_value(drone.control().is_reached_to_global_position,
+            Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                     (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                     0, 250, ret_val=True)
 
@@ -187,7 +189,7 @@ while 1:
                 "relative_alt" : dest_alt
             }
 
-            Method.Wait.until_value(drone.control().is_reached_to_global_position,
+            Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                     (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                     0, 250, ret_val=True)
 
@@ -196,13 +198,13 @@ while 1:
                                          True)
 
             # start pump
-            func.toggle_water_pump(drone)
+            func.toggle_water_pump(vehicle)
             sleep(config.Drone.Motor.Servo.WATER_TANK.FILL_TIME)
 
             # stop pump
-            func.toggle_water_pump(drone)
+            func.toggle_water_pump(vehicle)
 
-            Method.execute_in_background(func.raise_water_pump, (drone,))
+            Method.execute_in_background(func.raise_water_pump, (vehicle,))
 
             dest_alt = FLIGHT_ALTITUDE
 
@@ -212,7 +214,7 @@ while 1:
                 "relative_alt" : dest_alt
             }
 
-            Method.Wait.until_value(drone.control().is_reached_to_global_position,
+            Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                     (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                     0, 250, ret_val=True)
 
@@ -225,7 +227,7 @@ while 1:
                 "relative_alt": dest_alt
             }
 
-            Method.Wait.until_value(drone.control().is_reached_to_global_position,
+            Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                     (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                     0, 250, ret_val=True)
 
@@ -233,12 +235,12 @@ while 1:
             detected_once = False
             detection_timestamp = None
 
-            while drone.telemetry().get_flight_mode() == "GUIDED":
+            while vehicle.telemetry().get_flight_mode() == "GUIDED":
                 heading_left = Compass.substract_from_heading(POLE_COMPASS_BEARING, 90)
-                current_pos  = drone.telemetry().get_global_position()
+                current_pos  = vehicle.telemetry().get_global_position()
 
                 if not detected_once:
-                    dest_pos = Drone_Math.calculate_global_position_from_heading_and_distance({"lat" : current_pos["lat"], "lon" : current_pos["lon"]},
+                    dest_pos = VehicleMath.calculate_global_position_from_heading_and_distance({"lat" : current_pos["lat"], "lon" : current_pos["lon"]},
                                                                                               heading_left,
                                                                                               2.5)
 
@@ -250,7 +252,7 @@ while 1:
                         "relative_alt" : dest_alt
                     }
 
-                    Method.Wait.until_value(drone.control().is_reached_to_global_position,
+                    Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                             (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                             0, 250, ret_val=True)
 
@@ -259,7 +261,7 @@ while 1:
                     detection_timestamp = Time.get_current_timestamp("ms")
                 elif detection_timestamp is not None \
                 and  Time.get_current_timestamp("ms") - detection_timestamp >= 15000:
-                    func.open_water_tank(drone)
+                    func.open_water_tank(vehicle)
                     sleep(5)
 
                     dest_alt = FLIGHT_ALTITUDE
@@ -270,13 +272,13 @@ while 1:
                         "relative_alt" : dest_alt
                     }
 
-                    Method.Wait.until_value(drone.control().is_reached_to_global_position,
+                    Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                             (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                             0, 250, ret_val=True)
 
                     break
 
-                detection_list = drone.get_variable("ip_circle_list")
+                detection_list = vehicle.get_variable("ip_circle_list")
 
                 if detection_list is None \
                 or not detection_list[0]:
@@ -289,11 +291,11 @@ while 1:
                             "relative_alt" : dest_alt
                         }
 
-                        Method.Wait.until_value(drone.control().is_reached_to_global_position,
+                        Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                                 (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                                 0, 250, ret_val=True)
 
-                        func.open_water_tank(drone)
+                        func.open_water_tank(vehicle)
                         sleep(5)
 
                         dest_alt = FLIGHT_ALTITUDE
@@ -304,7 +306,7 @@ while 1:
                             "relative_alt" : dest_alt
                         }
 
-                        Method.Wait.until_value(drone.control().is_reached_to_global_position,
+                        Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                                 (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                                 0, 250, ret_val=True)
 
@@ -325,7 +327,7 @@ while 1:
 
                 point_information = Util.Point.extract_information(nearest_circle)
 
-                global_heading    = drone.control().calculate_global_heading_from_relative_heading(point_information[1])
+                global_heading    = vehicle.control().calculate_global_heading_from_relative_heading(point_information[1])
 
                 Logger.PrintLog(LOG_INFO + "Information of selected point, distance: {}, relative heading: {}, global heading: {}"
                                 .format(str(point_information[0]), str(point_information[1]), str(global_heading)))
@@ -335,8 +337,8 @@ while 1:
                 if point_information[0] > config.Drone.ImageProcessing.DETECTION_RANGE_CIRCLE_RADIUS:
                     Logger.PrintLog(LOG_INFO + "Circle is out of detection range. Moving toward it.")
 
-                    current_pos = drone.telemetry().get_global_position()
-                    dest_pos    = Drone_Math.calculate_global_position_from_heading_and_distance({"lat" : current_pos["lat"], "lon" : current_pos["lon"]},
+                    current_pos = vehicle.telemetry().get_global_position()
+                    dest_pos    = VehicleMath.calculate_global_position_from_heading_and_distance({"lat" : current_pos["lat"], "lon" : current_pos["lon"]},
                                                                                                  global_heading, 0.50)
                     dest_alt = control["position"]["hold"]["current_pos"]["relative_alt"]
 
@@ -346,7 +348,7 @@ while 1:
                         "relative_alt" : dest_alt
                     }
 
-                    Method.Wait.until_value(drone.control().is_reached_to_global_position,
+                    Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                             (dest_pos["lat"], dest_pos["lon"], dest_alt,
                                              0.45, 0),
                                             0, 250, ret_val=True)
@@ -364,12 +366,12 @@ while 1:
                         "relative_alt" : dest_alt
                     }
 
-                    Method.Wait.until_value(drone.control().is_reached_to_global_position,
+                    Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                             (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                             0, 250, ret_val=True)
 
                 if dest_alt == WATER_DROP_ALTITUDE:
-                    func.open_water_tank(drone)
+                    func.open_water_tank(vehicle)
                     sleep(5)
 
                     dest_alt = FLIGHT_ALTITUDE
@@ -380,7 +382,7 @@ while 1:
                         "relative_alt" : dest_alt
                     }
 
-                    Method.Wait.until_value(drone.control().is_reached_to_global_position,
+                    Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                             (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                             0, 250, ret_val=True)
 
@@ -389,7 +391,7 @@ while 1:
         # Go to Pole 1
         Logger.PrintLog(LOG_INFO + "Going to in front of Pole 1.")
 
-        dest_pos    = Drone_Math.calculate_global_position_from_heading_and_distance({"lat" : POLE_1_COORDS[0], "lon" : POLE_1_COORDS[1]},
+        dest_pos    = VehicleMath.calculate_global_position_from_heading_and_distance({"lat" : POLE_1_COORDS[0], "lon" : POLE_1_COORDS[1]},
                                                                                      POLE_COMPASS_COUNTER_BEARING,
                                                                                      7.5)
         dest_alt    = FLIGHT_ALTITUDE
@@ -400,13 +402,13 @@ while 1:
             "relative_alt" : dest_alt
         }
 
-        Method.Wait.until_value(drone.control().is_reached_to_global_position,
+        Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                 (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                 0, 250, ret_val=True)
 
         # Do fake circle toward left
-        current_pos = drone.telemetry().get_global_position()
-        dest_pos    = Drone_Math.calculate_global_position_from_heading_and_distance({"lat" : current_pos["lat"], "lon" : current_pos["lon"]},
+        current_pos = vehicle.telemetry().get_global_position()
+        dest_pos    = VehicleMath.calculate_global_position_from_heading_and_distance({"lat" : current_pos["lat"], "lon" : current_pos["lon"]},
                                                                                      Compass.add_to_heading(POLE_COMPASS_COUNTER_BEARING, 45),
                                                                                      10)
 
@@ -418,7 +420,7 @@ while 1:
             "relative_alt" : dest_alt
         }
 
-        Method.Wait.until_value(drone.control().is_reached_to_global_position,
+        Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                 (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                 0, 250, ret_val=True)
 
@@ -434,7 +436,7 @@ while 1:
             "relative_alt" : dest_alt
         }
 
-        Method.Wait.until_value(drone.control().is_reached_to_global_position,
+        Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                 (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                 0, 250, ret_val=True)
 
@@ -451,7 +453,7 @@ while 1:
             "relative_alt" : dest_alt
         }
 
-        Method.Wait.until_value(drone.control().is_reached_to_global_position,
+        Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                 (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                 0, 250, ret_val=True)
 
@@ -467,7 +469,7 @@ while 1:
                 "relative_alt" : dest_alt
             }
 
-            Method.Wait.until_value(drone.control().is_reached_to_global_position,
+            Method.Wait.until_value(vehicle.control().is_reached_to_global_position,
                                     (dest_pos["lat"], dest_pos["lon"], dest_alt, 0.45, 0),
                                     0, 250, ret_val=True)
 

@@ -11,10 +11,10 @@ from eb.method import Method
 from eb.time   import Time
 
 class Mission:
-    def __init__(self, drone, scripts_dir, control_rate):
-        self.LOG_INFO = "mission.py"
+    def __init__(self, vehicle, scripts_dir, control_rate):
+        self.LOG_INFO = "_mission.py"
 
-        self._drone        = drone
+        self._vehicle      = vehicle
         self._scripts_dir  = scripts_dir
         self._control_rate = control_rate
 
@@ -103,7 +103,7 @@ class Mission:
                 is_completed = False
                 current_mission_index = cls.get_current_mission_index()
                 current_mission       = cls._mission_list[current_mission_index]
-                current_flight_mode   = cls._drone.telemetry().get_flight_mode()
+                current_flight_mode   = cls._vehicle.telemetry().get_flight_mode()
 
                 if current_flight_mode != "GUIDED" \
                 and (current_flight_mode != "LAND" and current_mission.get("type") != Mission.Type.LAND):
@@ -112,7 +112,7 @@ class Mission:
                     break
 
                 if current_mission.get("status") == 0:
-                    global_pos = cls._drone.telemetry().get_global_position()
+                    global_pos = cls._vehicle.telemetry().get_global_position()
 
                     current_mission.set_storage_variable("rel_alt",  global_pos["relative_alt"])
                     current_mission.set_storage_variable("start_ms", Time.get_current_timestamp("ms"))
@@ -142,13 +142,13 @@ class Mission:
                     desired_alt = current_mission.get("alt")
                     threshold   = 0.5
 
-                    if cls._drone.control().is_reached_to_relative_alt(desired_alt, threshold):
+                    if cls._vehicle.control().is_reached_to_relative_alt(desired_alt, threshold):
                         is_completed = True
                 elif current_mission.get("type") == Mission.Type.LAND:
                     Logger.PrintLog(LOG_INFO, "Tracking LAND mission status.")
                     threshold = 0.5
 
-                    if cls._drone.control().is_reached_to_relative_alt(0, threshold):
+                    if cls._vehicle.control().is_reached_to_relative_alt(0, threshold):
                         is_completed = True
                 elif current_mission.get("type") == Mission.Type.WAYPOINT:
                     Logger.PrintLog(LOG_INFO, "Tracking WAYPOINT mission status.")
@@ -165,7 +165,7 @@ class Mission:
                                          cls._mission_retries,
                                          cls._mission_retry_timeout)
 
-                    if cls._drone.control().is_reached_to_global_position(dest_pos["lat"], dest_pos["lon"], desired_alt, threshold, cls._wp_radius):
+                    if cls._vehicle.control().is_reached_to_global_position(dest_pos["lat"], dest_pos["lon"], desired_alt, threshold, cls._wp_radius):
                         is_completed = True
                 elif current_mission.get("type") == Mission.Type.HOME_POINT:
                     is_completed = True
@@ -195,11 +195,11 @@ class Mission:
                                 exec_return = {}
 
                                 hold_pos = {"hold" : True}
-                                cls._drone.action().hold_global_position(hold_pos, cls._pos_update_interval)
+                                cls._vehicle.action().hold_global_position(hold_pos, cls._pos_update_interval)
 
                                 try:
                                     exec(compile(f.read(), script, "exec"), {
-                                        "drone"   : cls._drone,
+                                        "vehicle" : cls._vehicle,
                                         "control" : {
                                             "position" : {
                                                 "hold" : hold_pos
@@ -237,7 +237,7 @@ class Mission:
                                         .format(current_mission.get("delay")))
 
                         hold_pos = {"hold" : True}
-                        cls._drone.action().hold_global_position(hold_pos, cls._pos_update_interval)
+                        cls._vehicle.action().hold_global_position(hold_pos, cls._pos_update_interval)
 
                         delay_timestamp = Time.get_current_timestamp("ms")
 
@@ -275,7 +275,7 @@ class Mission:
         if set_to_emergency_mode:
             Logger.PrintLog(LOG_INFO, "!!! EMERGENCY SITUATION DETECTED !!! Setting flight mode to {}."
                             .format(emergency_mode))
-            cls._drone.action().set_flight_mode(emergency_mode)
+            cls._vehicle.action().set_flight_mode(emergency_mode)
 
         Logger.PrintLog(LOG_INFO, "Mission tracker thread has ended.")
 
@@ -285,18 +285,18 @@ class Mission:
 
         # https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_TAKEOFF
         if mission.get("type") == Mission.Type.TAKEOFF:
-            return self._drone.action().takeoff(mission.get("alt"), retries=retries, timeout=timeout)
+            return self._vehicle.action().takeoff(mission.get("alt"), retries=retries, timeout=timeout)
 
         # https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_LAND
         elif mission.get("type") == Mission.Type.LAND:
-            return self._drone.action().land(retries=retries, timeout=timeout)
+            return self._vehicle.action().land(retries=retries, timeout=timeout)
 
         # https://mavlink.io/en/messages/common.html#SET_POSITION_TARGET_GLOBAL_INT
         # https://mavlink.io/en/messages/common.html#MAV_CMD_NAV_WAYPOINT
         # https://github.com/ArduPilot/MAVProxy/blob/b2452edc85c6d8c83cc258e3e6219ac9b1268675/MAVProxy/modules/mavproxy_mode.py#L73
         # https://github.com/dronekit/dronekit-python/blob/master/dronekit/__init__.py#L2187
         elif mission.get("type") == Mission.Type.WAYPOINT:
-            return self._drone.action().go_to_global_position(mission.get("lat"),
+            return self._vehicle.action().go_to_global_position(mission.get("lat"),
                                                               mission.get("lon"),
                                                               mission.get("alt"))
 
@@ -305,7 +305,7 @@ class Mission:
 
         # https://mavlink.io/en/messages/common.html#MAV_CMD_DO_SET_HOME
         elif mission.get("type") == Mission.Type.HOME_POINT:
-            return self._drone.action().set_home_position(retries=retries, timeout=timeout)
+            return self._vehicle.action().set_home_position(retries=retries, timeout=timeout)
 
         else: raise TypeError("Invalid mission type.")
 
@@ -336,7 +336,7 @@ class Mission:
     def start(self):
         Logger.PrintLog(self.LOG_INFO, "start() - Starting mission(s).")
 
-        global_pos = self._drone.telemetry().get_global_position()
+        global_pos = self._vehicle.telemetry().get_global_position()
 
         if len(self._mission_list) < 1:
             Logger.PrintLog(self.LOG_INFO, "start() - Cannot start mission(s). There is no mission to start.")
@@ -349,35 +349,35 @@ class Mission:
         elif global_pos == {}:
             Logger.PrintLog(self.LOG_INFO, "start() - Cannot start the mission(s). Global position information is not set yet.")
             return False
-        elif self._drone.telemetry().get_local_position() == {}:
+        elif self._vehicle.telemetry().get_local_position() == {}:
             Logger.PrintLog(self.LOG_INFO, "start() - Cannot start the mission(s). Local position information is not set yet.")
             return False
-        elif self._drone.telemetry().get_flight_mode() == "AUTO":
+        elif self._vehicle.telemetry().get_flight_mode() == "AUTO":
             Logger.PrintLog(self.LOG_INFO, "start() - Cannot start the mission(s). Current flight mode is AUTO.")
             return False
 
         if self._mission_list[0].get("type") != Mission.Type.HOME_POINT:
             self._mission_list.insert(0, self.get_mission_item_proto(mission_type = Mission.Type.HOME_POINT))
 
-        if not self._drone.telemetry().get_is_armed():
-            Logger.PrintLog(self.LOG_INFO, "start() - Drone is not armed. Attempting to arm.")
+        if not self._vehicle.telemetry().get_is_armed():
+            Logger.PrintLog(self.LOG_INFO, "start() - Vehicle is not armed. Attempting to arm.")
 
-            res = self._drone.action().arm()
+            res = self._vehicle.action().arm()
 
             if res:
                 Logger.PrintLog(self.LOG_INFO, "start() - Successfully armed. Waiting for 3 seconds and then proceeding.")
                 sleep(3)
             else:
-                Logger.PrintLog(self.LOG_INFO, "start() - Couldn't arm the drone. Stopping.")
+                Logger.PrintLog(self.LOG_INFO, "start() - Couldn't arm the vehicle. Stopping.")
                 return False
 
-        res = self._drone.action().set_flight_mode("GUIDED")
+        res = self._vehicle.action().set_flight_mode("GUIDED")
 
         if not res:
             Logger.PrintLog(self.LOG_INFO, "start() - Couldn't get into GUIDED flight mode. Stopping.")
             return False
 
-        self._drone.set_variable("eb_home_pos",
+        self._vehicle.set_variable("eb_home_pos",
                                  (global_pos["lat"], global_pos["lon"]))
 
         if self._current_mission_index == -1:
@@ -430,20 +430,20 @@ class Mission:
                             .format(str(self._status)))
             return False
 
-        self._drone.action().set_flight_mode("LOITER")
+        self._vehicle.action().set_flight_mode("LOITER")
         self._status = 2
 
         return True
 
     def export(self, file_name):
         Logger.PrintLog(self.LOG_INFO, "export() - Exporting mission(s) to {}. Output directory: {}."
-                        .format(file_name, self._drone.get_output_directory()))
+                        .format(file_name, self._vehicle.get_output_directory()))
 
         if len(self._mission_list) < 1:
             Logger.PrintLog(self.LOG_INFO, "export() - There is no mission to export.")
             return False
 
-        if not os.path.isdir(self._drone.get_output_directory()):
+        if not os.path.isdir(self._vehicle.get_output_directory()):
             Logger.PrintLog(self.LOG_INFO, "export() - Output directory is not exist.")
             return False
 
@@ -460,7 +460,7 @@ class Mission:
             if i != len(self._mission_list) - 1:
                 mission_str += "|"
 
-        file_location = self._drone.get_output_directory() + file_name
+        file_location = self._vehicle.get_output_directory() + file_name
         with open(file_location, "w") as f:
             f.write(mission_str)
 
@@ -470,9 +470,9 @@ class Mission:
 
     def load(self, file_name):
         Logger.PrintLog(self.LOG_INFO, "load() - Loading mission from {}. Directory: {}."
-                        .format(file_name, self._drone.get_output_directory()))
+                        .format(file_name, self._vehicle.get_output_directory()))
 
-        file_location = self._drone.get_output_directory() + file_name
+        file_location = self._vehicle.get_output_directory() + file_name
 
         if not os.path.isfile(file_location):
             Logger.PrintLog(self.LOG_INFO, "load() - File is not exist in directory.")

@@ -12,15 +12,14 @@ from eb.time   import Time
 from eb.method import Method
 from eb.logger import Logger
 
+from eb.mavlink._telemetry import Telemetry
+from eb.mavlink._action    import Action
+from eb.mavlink._mission   import Mission
+from eb.mavlink._control   import Control
+from eb.mavlink.convert    import Convert
+import eb.mavlink.helper as eb_mavutil
 
-from eb.drone.telemetry import Telemetry
-from eb.drone.action    import Action
-from eb.drone.mission   import Mission
-from eb.drone.control   import Control
-from eb.drone.convert   import Convert
-import eb.drone.mavlink_helper as eb_mavutil
-
-class Drone:
+class Vehicle:
     def __init__(self,
                  port_name            : str  = "/dev/ttyTHS1",
                  baudrate             : int  = 115200,
@@ -42,7 +41,7 @@ class Drone:
                                                    retries          = retries,
                                                    autoreconnect    = autoreconnect)
         # Variables
-        self.LOG_INFO    = "drone.py"
+        self.LOG_INFO    = "vehicle.py"
         self._output_dir = output_dir
         self._rate       = rate
         self._variables  = {}
@@ -92,11 +91,11 @@ class Drone:
         self._control   = Control  (self)
 
         # Start message handler
-        _ = threading.Thread(target=Drone._thread_handler, args=(self,))
+        _ = threading.Thread(target=Vehicle._thread_handler, args=(self,))
         _.daemon = False
         _.start()
 
-        Logger.PrintLog(self.LOG_INFO, "__init__() - Connecting to drone.")
+        Logger.PrintLog(self.LOG_INFO, "__init__() - Connecting to vehicle.")
 
         while "HEARTBEAT" not in self._messages \
         or    self._exception is not None:
@@ -106,7 +105,7 @@ class Drone:
                 raise TimeoutError("Couldn't detect heartbeat in {} milliseconds."
                                    .format(str(timeout)))
 
-        Logger.PrintLog(self.LOG_INFO, "__init__() - Successfully connected to drone.")
+        Logger.PrintLog(self.LOG_INFO, "__init__() - Successfully connected to vehicle.")
 
         # Request Messages
         def _set_message_intervals(cls):
