@@ -68,17 +68,28 @@ Consists the links of the libraries that is needed for my classes to work. Be su
 
 * Consists methods to create a UDP server. (Automatically sends "ping" message to all sockets in specified time interval to check whether they are disconnected.)
 
-# Brief of Drone Classes
-(Those classes are located under "<b>eb/drone/</b>" folder.)
+# Brief of Mavlink Classes
+(Those classes are located under "<b>eb/mavlink/</b>" folder.)
 <br><br>
-<b>action.py</b>
+<b>_action.py</b>
 
 * Consists methods that requires drone to take an action. Such as going to GPS coordinates, landing, arming, etc... (Changing desired speed(s), yaw and things similar to these also counts as an action. At least for me. :P)
 
 <br>
-<b>control.py</b>
+<b>_control.py</b>
 
 * Consists methods to control drone position, altitude, etc...
+
+<br>
+<b>_mission.py</b>
+
+* Companion computer controlled mission system. Allows user to execute python scripts while being allowed to control drone position. Drone will be held in it's present GPS coordinates while executing mission script.
+* <b>Note: </b> This class doesn't load any mission(s) to drone.
+
+<br>
+<b>_telemetry.py</b>
+
+* Consists methods to get drone's various informations. Such as GPS position, last heartbeat, arm status, flight mode etc...
 
 <br>
 <b>convert.py</b>
@@ -86,10 +97,10 @@ Consists the links of the libraries that is needed for my classes to work. Be su
 * Consists methods to convert enum numbers to string or a custom class representative value.
 
 <br>
-<b>drone.py</b>
+<b>vehicle.py</b>
 
 * Depends on <a href="https://github.com/ArduPilot/pymavlink/">pymavlink</a>.
-* Initializes the connection between drone and computer. It keeps parsing specific mavlink messages in background.
+* Initializes the connection between vehicle and computer. It keeps parsing specific mavlink messages in background.
 * Consists various methods to communicate with flight controller.
 
 <br>
@@ -98,26 +109,22 @@ Consists the links of the libraries that is needed for my classes to work. Be su
 * Consists methods to work with GPS coordinates. Such as calculating lat, lon position of the drone from heading and distance, getting relative heading between two GPS coordinates, calculating distance between two GPS coordinates etc...
 
 <br>
-<b>mavlink_helper.py</b>
+<b>helper.py</b>
 
 * Depends on <a href="https://github.com/ArduPilot/pymavlink/">pymavlink</a>.
 * Consists methods to get constants that is defined by pymavlink with more ease.
-
-<br>
-<b>mission.py</b>
-
-* Companion computer controlled mission system. Allows user to execute python scripts while being allowed to control drone position. Drone will be held in it's present GPS coordinates while executing mission script.
-* <b>Note: </b> This class doesn't load any mission(s) to drone.
 
 <br>
 <b>reference.py</b>
 
 * pymavlink's mavutil constants and methods reference. And some other references.
 
-<br>
-<b>telemetry.py</b>
+# Brief of MavROS Classes
+(Those classes are located under "<b>eb/mavros/</b>" folder.)
+<br><br>
+<b>drone.py</b>
 
-* Consists methods to get drone's various informations. Such as GPS position, last heartbeat, arm status, flight mode etc...
+* Under testing...
 
 # Brief of Image Processing Classes
 (Those classes are located under "<b>eb/image_processing/</b>" folder.)
