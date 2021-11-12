@@ -28,7 +28,7 @@ def data_handler(addr, data):
     last_camera_frame_timestamp = timestamp
     last_camera_frame           = Image.Decode.FromEncodedImage(frame)
 
-server = UDP_Server("192.168.1.8", 3630, is_async = True, buffer_size = 1024 * 70, is_logging_enabled = False)
+server = UDP_Server("192.168.1.8", 3630, is_async = True, buffer_size = 1 * 1024 * 1024, is_logging_enabled = False)
 server.set_data_handler(data_handler)
 server.run()
 
