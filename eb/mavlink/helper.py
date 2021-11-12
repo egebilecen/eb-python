@@ -6,12 +6,10 @@ from pymavlink import mavutil
 
 class Copter:
     class Channel:
-        ROLL        = 1
-        PITCH       = 2
-        THROTTLE    = 3
-        YAW         = 4
-        FLIGHT_MODE = 5
-        OPTIONAL_1  = 6
+        ROLL     = 1
+        PITCH    = 2
+        THROTTLE = 3
+        YAW      = 4
 
 class Enum:
     @staticmethod
