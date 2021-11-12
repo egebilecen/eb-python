@@ -3,7 +3,7 @@
     Date  : 22.07.2020
 """
 from time   import sleep
-from typing import Union
+from typing import Union, Tuple
 from numpy  import ndarray
 import cv2
 import threading
@@ -14,7 +14,7 @@ from eb.image_processing.image import Image
 class Camera:
     def __init__(self,
                  device      : int             = 0,
-                 resolution  : tuple[int, int] = (640, 480),
+                 resolution  : Tuple[int, int] = (640, 480),
                  fps         : int             = 30,
                  file_name   : str             = "",
                  output_dir  : str             = "./video_output/",
