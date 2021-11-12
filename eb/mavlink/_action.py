@@ -364,15 +364,15 @@ class Action:
 
         global_pos = self._vehicle.telemetry().get_global_position()
 
+        if global_pos == {}:
+            Logger.PrintLog(self.LOG_INFO, "hold_global_position() - Cannot hold vehicle's global position. Global position information is not yet set.")
+            return False
+
         hold_dict["current_pos"] = {
             "lat" : global_pos["lat"],
             "lon" : global_pos["lon"],
             "relative_alt" : global_pos["relative_alt"]
         }
-
-        if global_pos == {}:
-            Logger.PrintLog(self.LOG_INFO, "hold_global_position() - Cannot hold vehicle's global position. Global position information is not yet set.")
-            return False
 
         def impl(cls, hold):
             Logger.PrintLog(cls.LOG_INFO, "hold_global_position() - Handler has started. Lat:{}, Lon:{}, Alt:{}."
