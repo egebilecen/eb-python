@@ -7,6 +7,7 @@ from typing import Union, Tuple
 from numpy  import ndarray
 import cv2
 import threading
+import os
 
 from eb.logger import Logger
 from eb.image_processing.image import Image
@@ -67,6 +68,9 @@ class Camera:
         self._camera = cv2.VideoCapture(self._device)
 
         if self._file_name != "":
+            if not os.path.isdir(self._output_dir):
+                os.mkdir(self._output_dir)
+
             codec = cv2.VideoWriter_fourcc("X", "V", "I", "D")
             self._writer = cv2.VideoWriter(self._output_dir + self._file_name+".avi", codec, self._fps / 4, self._resolution)
 
