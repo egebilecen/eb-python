@@ -12,14 +12,6 @@ class Copter:
         YAW         = 4
         FLIGHT_MODE = 5
         OPTIONAL_1  = 6
-        AUX_1       = 7
-        AUX_2       = 8
-        AUX_3       = 9
-        AUX_4       = 10
-        AUX_5       = 11
-        AUX_6       = 12
-        AUX_7       = 13
-        AUX_8       = 14
 
 class Enum:
     @staticmethod
