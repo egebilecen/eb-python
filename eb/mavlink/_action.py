@@ -653,30 +653,33 @@ class Action:
 
         return Method.Repeat.until_value(impl, (), retries, ret_val=True)[0]
 
-    def rc_channel_override(self, channel, val_or_percentage, use_val=False, min_ppm_us=1000, max_ppm_us=2000):
+    def rc_channel_override(self, channel, val_or_percentage, use_val=True, min_ppm_us=1000, max_ppm_us=2000):
+        CHANNEL_COUNT = 8
+        
         if channel < 1 \
-        or channel > 8:
-            raise ValueError("Channel must be between 1 and 8. (inclusive)")
+        or channel > CHANNEL_COUNT:
+            raise ValueError("Channel must be between 1 and {}. (inclusive)".format(str(CHANNEL_COUNT)))
         
         write_val = 0
 
-        if use_val:
-            if val_or_percentage < min_ppm_us:
-                raise ValueError("PPM us value cannot be less than min_ppm_us.")
-            
-            if val_or_percentage > max_ppm_us:
-                raise ValueError("PPM us value cannot be less than max_ppm_us.")
+        if val_or_percentage != 0:
+            if use_val:
+                if  val_or_percentage < min_ppm_us:
+                    raise ValueError("PPM us value cannot be less than min_ppm_us.")
+                
+                if val_or_percentage > max_ppm_us:
+                    raise ValueError("PPM us value cannot be less than max_ppm_us.")
 
-            write_val = val_or_percentage
-        else: 
-            if val_or_percentage < 0 \
-            or val_or_percentage > 100:
-                raise ValueError("Percentage must be between 0 and 100. (inclusive)")
+                write_val = val_or_percentage
+            else: 
+                if val_or_percentage < 1 \
+                or val_or_percentage > 100:
+                    raise ValueError("Percentage must be between 1 and 100. (inclusive)")
 
-            write_val = Math.Value.map(val_or_percentage, 0, 100, min_ppm_us, max_ppm_us)
+                write_val = Math.Value.map(val_or_percentage, 1, 100, min_ppm_us, max_ppm_us)
         
         UINT16_MAX = 65535
-        raw_channel_values = [UINT16_MAX for _ in range(8)]
+        raw_channel_values = [UINT16_MAX for _ in range(CHANNEL_COUNT)]
         raw_channel_values[channel - 1] = write_val
 
         eb_mavutil.Enum.get_method_reference(self._vehicle.mav(), "RC_CHANNELS_OVERRIDE")(
