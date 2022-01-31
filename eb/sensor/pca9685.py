@@ -75,7 +75,7 @@ class PCA9685:
 
     def set_duty_cycle_percentage(self,
                                   channel    : int,
-                                  percentage : int) -> None:
+                                  percentage : float) -> None:
         if percentage < 0 or percentage > 100:
             raise ValueError("percentage must be between 0 and 100. (Inclusive)")
 
@@ -94,5 +94,5 @@ class PCA9685:
         return PCA9685.MAX_PWM_VALUE - ((block_data[3] << 8) | block_data[2])
 
     def get_duty_cycle_percentage(self,
-                                  channel : int) -> int:
-        return int(self.get_dutcy_cycle_value(channel) / self.MAX_PWM_VALUE * 100)
+                                  channel : int) -> float:
+        return self.get_dutcy_cycle_value(channel) / self.MAX_PWM_VALUE * 100
