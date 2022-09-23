@@ -2,6 +2,7 @@
     Author: Ege Bilecen
     Date  : 22.07.2020
 """
+import traceback
 from os       import path as os_path
 from datetime import datetime
 
@@ -32,4 +33,4 @@ class Logger:
                        title        : str,
                        ex           : Exception,
                        write_to_file: bool = True):
-        cls.PrintLog(title, "{} - {}".format(type(ex).__name__, str(ex)), write_to_file)
+        cls.PrintLog(title, "{}\n{}".format(type(ex).__name__, traceback.format_exc()), write_to_file)
